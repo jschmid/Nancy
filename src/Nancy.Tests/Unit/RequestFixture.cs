@@ -180,29 +180,29 @@ namespace Nancy.Tests.Unit
             ((string)request.Form.name).ShouldEqual("John Doe");
         }
 
-        [Fact]
-        public void Should_set_extract_form_data_from_body_when_content_type_is_x_www_form_urlencoded_with_character_set()
-        {
-            // Given
-            const string bodyContent = "name=John+Doe&gender=male&family=5&city=kent&city=miami&other=abc%0D%0Adef&nickname=J%26D";
-            var memory = CreateRequestStream();
-            var writer = new StreamWriter(memory);
-            writer.Write(bodyContent);
-            writer.Flush();
-            memory.Position = 0;
+		[Fact]
+		public void Should_set_extract_form_data_from_body_when_content_type_is_x_www_form_urlencoded_with_character_set()
+		{
+			// Given
+			const string bodyContent = "name=John+Doe&gender=male&family=5&city=kent&city=miami&other=abc%0D%0Adef&nickname=J%26D";
+			var memory = CreateRequestStream ();
+			var writer = new StreamWriter (memory);
+			writer.Write (bodyContent);
+			writer.Flush ();
+			memory.Position = 0;
 
-            var headers =
+			var headers =
                 new Dictionary<string, IEnumerable<string>>
                 {
                     { "content-type", new[] { "application/x-www-form-urlencoded; charset=UTF-8" } }
                 };
 
-            // When
-            var request = new Request("POST", "/", headers, memory, "http");
+			// When
+			var request = new Request ("POST", "/", headers, memory, "http");
 
-            // Then
-            ((string)request.Form.name).ShouldEqual("John Doe");
-        }
+			// Then
+			((string) request.Form.name).ShouldEqual ("John Doe");
+		}
 
         [Fact]
         public void Should_set_extracted_form_data_from_body_when_content_type_is_multipart_form_data()
@@ -325,7 +325,59 @@ namespace Nancy.Tests.Unit
         {
             var reader = new StreamReader(stream);
             return reader.ReadToEnd();
-        }
+		}
+
+		[Fact]
+		public void Should_set_extract_form_arrays()
+		{
+			// Given
+			const string bodyContent = "name=John+Doe&son[]=Paul&son[]=Richard";
+			var memory = CreateRequestStream ();
+			var writer = new StreamWriter (memory);
+			writer.Write (bodyContent);
+			writer.Flush ();
+			memory.Position = 0;
+
+			var headers =
+                new Dictionary<string, IEnumerable<string>>
+                {
+                    { "content-type", new[] { "application/x-www-form-urlencoded; charset=UTF-8" } }
+                };
+
+			// When
+			var request = new Request ("POST", "/", headers, memory, "http");
+
+			// Then
+			((string) request.Form.name).ShouldEqual ("John Doe");
+			((string) request.Form.son[0]).ShouldEqual ("Paul");
+			((string) request.Form.son[1]).ShouldEqual ("Richard");
+		}
+
+		[Fact]
+		public void Should_set_extract_form_key_arrays()
+		{
+			// Given
+			const string bodyContent = "name=John+Doe&son[0]=Paul&son[1]=Richard";
+			var memory = CreateRequestStream ();
+			var writer = new StreamWriter (memory);
+			writer.Write (bodyContent);
+			writer.Flush ();
+			memory.Position = 0;
+
+			var headers =
+                new Dictionary<string, IEnumerable<string>>
+                {
+                    { "content-type", new[] { "application/x-www-form-urlencoded; charset=UTF-8" } }
+                };
+
+			// When
+			var request = new Request ("POST", "/", headers, memory, "http");
+
+			// Then
+			((string) request.Form.name).ShouldEqual ("John Doe");
+			((string) request.Form.son[0]).ShouldEqual ("Paul");
+			((string) request.Form.son[1]).ShouldEqual ("Richard");
+		}
 
 		[Fact]
 		public void Should_be_able_to_invoke_form_repeatedly()
